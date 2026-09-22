@@ -1,2 +1,2 @@
 # analise-lucratividade
-Sistema feito com google apps script para corrigir valores no sistema Loja integrada e no ERP Bling
+Integração em Google Apps Script entre Loja Integrada e Bling para calcular a margem real de cada produto e identificar custos desatualizados.
