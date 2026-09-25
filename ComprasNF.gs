@@ -83,6 +83,23 @@ function pararLeituraNFs() {
 }
 
 /**
+ * RETOMAR — continua a leitura de onde parou, sem apagar o que já foi lido.
+ * Use esta (e não iniciarLeituraNFs) quando quiser continuar uma leitura
+ * que foi interrompida por pararLeituraNFs(), por erro ou pela cota diária.
+ */
+function retomarLeituraNFs() {
+  const props = PropertiesService.getScriptProperties();
+  props.deleteProperty('NF_PARAR');
+  agendarContinuacaoNF_();
+  SpreadsheetApp.getActiveSpreadsheet().toast(
+    'Vai retomar do e-mail nº ' + (props.getProperty('NF_OFFSET') || '0') +
+    ' em alguns segundos. Você recebe um e-mail quando terminar.',
+    'Retomando leitura das notas',
+    8
+  );
+}
+
+/**
  * Processa lotes de e-mails até acabar o tempo seguro; se não terminar,
  * salva onde parou e se reagenda.
  */
