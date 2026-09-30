@@ -119,7 +119,7 @@ function continuarCustoTodosAtivos_() {
         buffer.push([sku, linhaDados[1], '', '', '', 'Preço no Site inválido (célula pode ter virado data — corrija na aba Entrada e rode de novo)']);
       } else {
       try {
-        const custo = calcularPrecoCustoBling_(sku);
+        const custo = custoBlingRobusto_(sku);
         if (!custo.encontrado) {
           buffer.push([sku, precoSite, '', '', '', 'Não encontrado no Bling']);
         } else {
@@ -234,7 +234,7 @@ function reprocessarErrosCusto() {
     const precoSite = Number(dados[i][1] || 0);
 
     try {
-      const custo = calcularPrecoCustoBling_(sku);
+      const custo = custoBlingRobusto_(sku);
       if (!custo.encontrado) {
         sheet.getRange(linha, 3, 1, 4).setValues([['', '', '', 'Não encontrado no Bling']]);
       } else {
