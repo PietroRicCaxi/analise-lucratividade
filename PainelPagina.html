@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#EFF1F3; --surface:#FFFFFF; --line:#D6DBE1; --grid:#E8EBEF;
+  --ink:#141C26; --ink-2:#4E5C6B; --muted:#7A8797;
+  --ok:#0F8F70; --warn:#EDA100; --bad:#A81E1A; --neutral:#5E7A8C;
+  --warn-soft:#FBF0D8;
+  --font:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F141B; --surface:#171C24; --line:#2A3441; --grid:#222B36;
+  --ink:#E9EEF4; --ink-2:#AFBDCB; --muted:#8494A4;
+  --ok:#2FBF98; --warn:#E0A62E; --bad:#E2635C; --neutral:#7E9BAE;
+  --warn-soft:#332816;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+  padding:26px 18px 40px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+h1{font-size:19px;font-weight:700;margin:0;letter-spacing:-.015em}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--muted)}
+button{margin-left:auto;font-family:var(--font);font-size:12.5px;font-weight:600;
+  background:var(--surface);color:var(--ink);border:1px solid var(--line);
+  border-radius:5px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  padding:15px 17px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.tile .v{font-size:27px;font-weight:600;line-height:1.1;letter-spacing:-.02em}
+.tile .v small{font-size:15px;font-weight:500;color:var(--ink-2)}
+.tile .k{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.tile.bad .v{color:var(--bad)} .tile.ok .v{color:var(--ok)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:18px 20px}
+.card>h2{font-size:12px;font-weight:700;margin:0 0 3px;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--ink-2)}
+.card>.sub{font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.45}
+
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:minmax(96px,150px) 1fr;gap:12px;align-items:center}
+.row .name{font-size:12.5px;color:var(--ink-2);text-align:right;line-height:1.25}
+.track{display:flex;align-items:center;gap:9px;min-width:0}
+.fill{height:19px;border-radius:0 3px 3px 0;flex:none;min-width:3px}
+.val{font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.val i{font-style:normal;color:var(--muted);font-size:11.5px;margin-left:5px}
+
+.bands{display:flex;flex-direction:column;gap:11px}
+.band{display:grid;grid-template-columns:minmax(74px,92px) 1fr;gap:12px;align-items:center}
+.band .name{font-family:var(--mono);font-size:12px;color:var(--ink-2);text-align:right}
+.stack{display:flex;height:21px;border-radius:3px;overflow:hidden;gap:2px;min-width:0}
+.stack span{min-width:0}
+.cover{display:flex;height:26px;border-radius:3px;overflow:hidden;gap:2px}
+.cover span{display:flex;align-items:center;padding:0 11px;font-size:11.5px;
+  font-weight:600;color:#fff;white-space:nowrap;min-width:0}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:15px;padding-top:14px;
+  border-top:1px solid var(--grid);font-size:12.5px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:7px}
+.dot{width:10px;height:10px;border-radius:2px;flex:none}
+
+.scroll{overflow-x:auto;margin:0 -20px;padding:0 20px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:580px}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th:last-child,td:last-child{padding-right:0}
+tbody tr:last-child td{border-bottom:0}
+td.sku{font-family:var(--mono);font-size:12px}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.neg{color:var(--bad);font-weight:600}
+td.sug{color:var(--ok);font-weight:600}
+
+.note{background:var(--warn-soft);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:5px;padding:16px 19px;display:flex;flex-direction:column;gap:7px}
+.note h2{font-size:12px;margin:0;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.note p{margin:0;font-size:13px;line-height:1.55;max-width:76ch}
+footer{font-size:11.5px;color:var(--muted);line-height:1.65;border-top:1px solid var(--line);padding-top:13px}
+.row,.band{cursor:pointer;border-radius:4px;padding:2px 4px;margin:-2px -4px}
+.row:hover,.band:hover{background:var(--grid)}
+.row:focus-visible,.band:focus-visible{outline:2px solid var(--ok);outline-offset:1px}
+.stack span{cursor:pointer}
+#detalhe{display:none}
+#detalhe.on{display:block}
+.dhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin-bottom:4px}
+.dhead h2{margin:0}
+.dhead .qtd{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.dhead .fechar{margin-left:auto;background:none;border:0;color:var(--muted);
+  font-size:13px;padding:4px 8px;cursor:pointer;font-family:var(--font)}
+.dhead .fechar:hover{color:var(--ink)}
+th.ord{cursor:pointer;user-select:none;white-space:nowrap}
+th.ord:hover{color:var(--ink)}
+th.ord .seta{opacity:.35;margin-left:4px}
+th.ord.ativo{color:var(--ink)}
+th.ord.ativo .seta{opacity:1}
+#dscroll{max-height:372px;overflow-y:auto;overflow-x:auto;margin:0 -20px;padding:0 20px;
+  border-top:1px solid var(--grid);border-bottom:1px solid var(--grid)}
+#dscroll table{min-width:600px}
+#dscroll thead th{position:sticky;top:0;background:var(--surface);z-index:2;
+  box-shadow:inset 0 -1px 0 var(--line)}
+#dscroll tbody td{height:33px}
+#dscroll::-webkit-scrollbar{width:11px;height:11px}
+#dscroll::-webkit-scrollbar-track{background:var(--grid);border-radius:6px}
+#dscroll::-webkit-scrollbar-thumb{background:var(--muted);border-radius:6px;
+  border:3px solid var(--grid)}
+#dscroll::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
+#dscroll{scrollbar-width:thin;scrollbar-color:var(--muted) var(--grid)}
+#dmais{text-align:center;font-size:12px;color:var(--muted);padding:10px 0 0}
+#tip{position:fixed;pointer-events:none;opacity:0;transition:opacity .1s;z-index:9;
+  background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;
+  border-radius:4px;font-family:var(--mono);white-space:nowrap}
+@media (max-width:520px){
+  .row,.band{grid-template-columns:1fr;gap:3px}
+  .row .name,.band .name{text-align:left}
+  button{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Margem dos anúncios — Loja Integrada</h1>
+    <span class="stamp" id="stamp"></span>
+    <button id="btn" onclick="atualizar()">Recalcular</button>
+  </header>
+
+  <section class="tiles">
+    <div class="tile bad"><span class="v" id="t1">—</span><span class="k">anúncios vendendo abaixo do custo</span></div>
+    <div class="tile bad"><span class="v"><small>R$</small> <span id="t2">—</span></span><span class="k">de prejuízo a cada rodada de vendas</span></div>
+    <div class="tile ok"><span class="v"><small>R$</small> <span id="t3">—</span></span><span class="k" id="k3">a mais por rodada, reprecificando os apertados</span></div>
+    <div class="tile"><span class="v" id="t4">—</span><span class="k">anúncios ativos analisados</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Distribuição do catálogo</h2>
+    <p class="sub" id="sub1">Margem sobre o custo do Bling, depois de imposto, plataforma, Google Ads e embalagem.</p>
+    <div class="rows" id="cats"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--ok)"></i>saudável</span>
+      <span><i class="dot" style="background:var(--warn)"></i>margem apertada</span>
+      <span><i class="dot" style="background:var(--bad)"></i>prejuízo</span>
+      <span><i class="dot" style="background:var(--neutral)"></i>fora da conta · sem custo</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Onde está o problema</h2>
+    <p class="sub">Anúncios por faixa de preço, sem as presilhas avulsas. Quanto mais barato o produto, mais pesam os custos fixos.</p>
+    <div class="bands" id="bands"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--ok)"></i>na meta</span>
+      <span><i class="dot" style="background:var(--warn)"></i>abaixo da meta</span>
+      <span><i class="dot" style="background:var(--bad)"></i>prejuízo</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Os 10 que mais perdem por venda</h2>
+    <p class="sub">Preço sugerido é o mínimo para atingir a meta com os parâmetros atuais.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>SKU</th><th>Preço</th><th>Custo</th><th>Perda</th><th>Margem</th><th>Preço p/ meta</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="detalhe">
+    <div class="dhead">
+      <h2 id="dtitulo"></h2>
+      <span class="qtd" id="dqtd"></span>
+      <button class="fechar" onclick="fecharDetalhe()">fechar ✕</button>
+    </div>
+    <p class="sub">Clique no título de uma coluna para ordenar. Role a lista para carregar mais.</p>
+    <div class="scroll" id="dscroll">
+      <table>
+        <thead><tr>
+          <th>SKU</th>
+          <th class="ord" data-c="preco">Preço<span class="seta"></span></th>
+          <th class="ord" data-c="custo">Custo<span class="seta"></span></th>
+          <th class="ord ativo" data-c="lucro">Lucro R$<span class="seta">▲</span></th>
+          <th class="ord" data-c="margem">Margem<span class="seta"></span></th>
+          <th class="ord" data-c="sug">Preço p/ meta<span class="seta"></span></th>
+        </tr></thead>
+        <tbody id="dtb"></tbody>
+      </table>
+    </div>
+    <div id="dmais"></div>
+  </section>
+
+  <section class="note">
+    <h2>Como ler este painel</h2>
+    <p id="notep"></p>
+    <p>As presilhas avulsas aparecem separadas porque o custo fixo de Google Ads e embalagem é por pedido, não por unidade: quem leva 30 presilhas gera um envelope e um clique, não trinta. Enquanto o custo por conversão real do Google Ads não entra na conta, elas ficam fora da avaliação.</p>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+<div id="tip"></div>
+
+<script>
+var DADOS = <?!= dados ?>;
+
+var br = function (n, d) { d = d === undefined ? 2 : d;
+  return Number(n).toLocaleString("pt-BR", {minimumFractionDigits:d, maximumFractionDigits:d}); };
+var int = function (n) { return Number(n).toLocaleString("pt-BR"); };
+var tip = document.getElementById("tip");
+
+function liga(el, texto) {
+  el.addEventListener("pointermove", function (e) {
+    tip.textContent = texto;
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10) + "px";
+    tip.style.top = (e.clientY - 34) + "px";
+  });
+  el.addEventListener("pointerleave", function () { tip.style.opacity = 0; });
+}
+
+function desenhar(d) {
+  var meta = Math.round(d.parametros.meta * 100);
+
+  document.getElementById("stamp").textContent = "atualizado em " + d.atualizado;
+  document.getElementById("t1").textContent = int(d.categorias[3].n);
+  document.getElementById("t2").textContent = br(d.prejuizoRS);
+  document.getElementById("t3").textContent = br(d.ganho);
+  document.getElementById("k3").textContent = "a mais por rodada, reprecificando os " + int(d.revisar) + " apertados";
+  document.getElementById("t4").textContent = int(d.total);
+
+  var pa = d.parametros;
+  var textoAds = (pa.adsPct ? Math.round(pa.adsPct*100) + "% de Google Ads" : "") +
+    (pa.adsPct && pa.ads ? " mais " : "") +
+    (pa.ads ? "R$ " + br(pa.ads) + " de Google Ads" : "") ||
+    "sem custo de Google Ads";
+  document.getElementById("sub1").textContent =
+    "Margem sobre o custo do Bling, depois de " + Math.round(pa.imposto*100) + "% de imposto, " +
+    Math.round(pa.plataforma*100) + "% de plataforma, " + textoAds +
+    " e a embalagem. Meta: " + meta + "%.";
+
+  var ids = ["ok", "b20", "b10", "pr", "presilha", "semcusto"];
+  var maxCat = 1;
+  d.categorias.forEach(function (c, i) { c.cor_id = ids[i]; if (c.n > maxCat) maxCat = c.n; });
+  document.getElementById("cats").innerHTML = d.categorias.map(function (c) {
+    return '<div class="row" tabindex="0" data-tipo="categoria" data-valor="' + c.cor_id +
+      '" data-titulo="' + c.nome + '"><span class="name">' + c.nome + '</span><span class="track">' +
+      '<span class="fill" style="width:' + (c.n / maxCat * 100).toFixed(1) + '%;background:var(--' + c.cor + ')"></span>' +
+      '<span class="val">' + int(c.n) + '<i>' + (d.total ? (c.n / d.total * 100).toFixed(1) : 0) + '%</i></span>' +
+      '</span></div>';
+  }).join("");
+
+  document.getElementById("bands").innerHTML = d.faixas.map(function (f) {
+    return '<div class="band" tabindex="0" data-tipo="faixa" data-valor="' + f.faixa +
+      '" data-titulo="Faixa ' + f.faixa + '"><span class="name">' + f.faixa + '</span><span class="stack">' +
+      '<span style="background:var(--ok);flex:' + f.ok + '" data-cat="ok" data-t="' + f.faixa + ': ' + int(f.ok) + ' na meta"></span>' +
+      '<span style="background:var(--warn);flex:' + f.ruim + '" data-cat="ruim" data-t="' + f.faixa + ': ' + int(f.ruim) + ' abaixo da meta"></span>' +
+      '<span style="background:var(--bad);flex:' + f.pr + '" data-cat="pr" data-t="' + f.faixa + ': ' + int(f.pr) + ' em prejuízo"></span>' +
+      '</span></div>';
+  }).join("");
+  var segs = document.querySelectorAll(".stack span[data-t]");
+  for (var i = 0; i < segs.length; i++) liga(segs[i], segs[i].getAttribute("data-t"));
+  ligarCliques();
+
+  document.getElementById("tb").innerHTML = d.piores.map(function (p) {
+    return "<tr><td class='sku'>" + p[0] + "</td><td class='n'>" + br(p[1]) + "</td><td class='n'>" + br(p[2]) +
+      "</td><td class='n neg'>" + br(p[3]) + "</td><td class='n neg'>" + br(p[4], 1) +
+      "%</td><td class='n sug'>" + br(p[5]) + "</td></tr>";
+  }).join("");
+
+  document.getElementById("notep").textContent =
+    "Cada anúncio é classificado pela margem que sobra depois de todos os custos. " +
+    "“Prejuízo” significa que a venda dá resultado negativo. Os valores em reais são por rodada de vendas: " +
+    "o quanto se perde, ou se ganharia, se cada um desses anúncios vender uma unidade.";
+
+  document.getElementById("foot").innerHTML =
+    "Margem = preço − " + Math.round(d.parametros.imposto*100) + "% imposto − " +
+    Math.round(d.parametros.plataforma*100) + "% plataforma − R$ " + br(d.parametros.ads) +
+    " Google Ads − embalagem (R$ " + br(d.parametros.emb1,0) + " até R$ 30 · R$ " + br(d.parametros.emb2,0) +
+    " de R$ 30 a R$ 60 · R$ " + br(d.parametros.emb3,0) + " acima) − custo do Bling.<br>" +
+    "Custos lidos do Bling e preços lidos da Loja Integrada, pelas APIs. Atualização automática diária de madrugada. " +
+    "Para mudar os parâmetros, edite a aba “Parâmetros” da planilha.";
+}
+
+/* ---------------- detalhe paginado ---------------- */
+var D = { tipo:"", valor:"", titulo:"", cat:"", coluna:"lucro", direcao:"asc",
+          offset:0, total:0, carregando:false };
+var PAGINA = 10;
+
+function ligarCliques() {
+  var alvos = document.querySelectorAll("[data-tipo]");
+  for (var i = 0; i < alvos.length; i++) {
+    (function (el) {
+      var abrir = function (ev) {
+        var cat = "";
+        if (ev && ev.target && ev.target.getAttribute("data-cat")) {
+          var c = ev.target.getAttribute("data-cat");
+          if (c === "pr") cat = "pr";
+          else if (c === "ok") cat = "ok";
+        }
+        abrirDetalhe(el.getAttribute("data-tipo"), el.getAttribute("data-valor"),
+                     el.getAttribute("data-titulo"), cat);
+      };
+      el.addEventListener("click", abrir);
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(null); }
+      });
+    })(alvos[i]);
+  }
+}
+
+function abrirDetalhe(tipo, valor, titulo, cat) {
+  D.tipo = tipo; D.valor = valor; D.cat = cat || "";
+  D.titulo = titulo + (cat === "pr" ? " · só prejuízo" : (cat === "ok" ? " · só na meta" : ""));
+  D.coluna = "lucro"; D.direcao = "asc"; D.offset = 0; D.total = 0;
+  document.getElementById("dtitulo").textContent = D.titulo;
+  document.getElementById("dtb").innerHTML = "";
+  document.getElementById("dscroll").scrollTop = 0;
+  document.getElementById("detalhe").classList.add("on");
+  marcarColuna();
+  carregarPagina(true);
+  document.getElementById("detalhe").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function fecharDetalhe() {
+  document.getElementById("detalhe").classList.remove("on");
+}
+
+function marcarColuna() {
+  var ths = document.querySelectorAll("th.ord");
+  for (var i = 0; i < ths.length; i++) {
+    var ativo = ths[i].getAttribute("data-c") === D.coluna;
+    ths[i].className = "ord" + (ativo ? " ativo" : "");
+    ths[i].querySelector(".seta").textContent = ativo ? (D.direcao === "asc" ? "▲" : "▼") : "";
+  }
+}
+
+function carregarPagina(primeira) {
+  if (D.carregando) return;
+  if (!primeira && D.total && D.offset >= D.total) return;
+  D.carregando = true;
+  document.getElementById("dmais").textContent = "carregando…";
+  google.script.run
+    .withSuccessHandler(function (r) {
+      D.total = r.total;
+      D.offset = r.offset + r.linhas.length;
+      document.getElementById("dqtd").textContent = int(r.total) + " anúncios";
+      var html = r.linhas.map(function (p) {
+        var neg = p[3] < 0 ? " neg" : "";
+        return "<tr><td class='sku'>" + p[0] + "</td><td class='n'>" + br(p[1]) +
+          "</td><td class='n'>" + br(p[2]) + "</td><td class='n" + neg + "'>" + br(p[3]) +
+          "</td><td class='n" + neg + "'>" + br(p[4], 1) + "%</td><td class='n sug'>" +
+          (p[5] ? br(p[5]) : "—") + "</td></tr>";
+      }).join("");
+      document.getElementById("dtb").insertAdjacentHTML("beforeend", html);
+      document.getElementById("dmais").textContent =
+        D.offset >= D.total ? "fim da lista" : "mostrando " + D.offset + " de " + int(D.total) + " — role para ver mais";
+      D.carregando = false;
+    })
+    .withFailureHandler(function (e) {
+      document.getElementById("dmais").textContent = "erro: " + e.message;
+      D.carregando = false;
+    })
+    .getDetalhe(D.tipo, D.valor, D.coluna, D.direcao, D.offset, PAGINA, D.cat);
+}
+
+document.querySelectorAll("th.ord").forEach(function (th) {
+  th.addEventListener("click", function () {
+    var c = th.getAttribute("data-c");
+    if (D.coluna === c) D.direcao = D.direcao === "asc" ? "desc" : "asc";
+    else { D.coluna = c; D.direcao = "asc"; }
+    D.offset = 0;
+    document.getElementById("dtb").innerHTML = "";
+    document.getElementById("dscroll").scrollTop = 0;
+    marcarColuna();
+    carregarPagina(true);
+  });
+});
+
+document.getElementById("dscroll").addEventListener("scroll", function () {
+  var c = this;
+  if (c.scrollTop + c.clientHeight >= c.scrollHeight - 60) carregarPagina(false);
+});
+
+function atualizar() {
+  var b = document.getElementById("btn");
+  b.disabled = true; b.textContent = "Atualizando…";
+  google.script.run
+    .withSuccessHandler(function (d) {
+      DADOS = d; desenhar(d);
+      b.disabled = false; b.textContent = "Recalcular";
+    })
+    .withFailureHandler(function (e) {
+      b.disabled = false; b.textContent = "Falhou — tentar de novo";
+      document.getElementById("stamp").textContent = "erro: " + e.message;
+    })
+    .recarregarPainel();
+}
+
+try {
+  desenhar(DADOS);
+} catch (e) {
+  document.getElementById("stamp").textContent = "erro ao desenhar: " + e.message;
+}
+</script>
+</body>
+</html>
